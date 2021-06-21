@@ -30,6 +30,10 @@ static const struct meson_socinfo_data socinfo_gx = {
 	.offset = 0xe0,
 };
 
+static const struct meson_socinfo_data socinfo_c2 = {
+	.offset = 0x300,
+};
+
 static const struct meson_gx_soc_id {
 	const char *name;
 	unsigned int id;
@@ -47,6 +51,7 @@ static const struct meson_gx_soc_id {
 	{ "G12B", 0x29 },
 	{ "SM1", 0x2b },
 	{ "A1", 0x2c },
+	{ "C2", 0x33 },
 };
 
 static const struct meson_gx_package_id {
@@ -80,6 +85,7 @@ static const struct meson_gx_package_id {
 	{ "S905X3", 0x2b, 0x10, 0x3f },
 	{ "S905D3", 0x2b, 0x30, 0x3f },
 	{ "A113L", 0x2c, 0x0, 0xf8 },
+	{ "C305X", 0x33, 0x0, 0xf8 },
 };
 
 static inline unsigned int socinfo_to_major(u32 socinfo)
@@ -133,6 +139,7 @@ static const char *socinfo_to_soc_id(u32 socinfo)
 
 static const struct of_device_id meson_socinfo_ids[] __initconst = {
 	{ .compatible = "amlogic,meson-gx-ao-secure", .data = &socinfo_gx, },
+	{ .compatible = "amlogic,meson-c2-secure", .data = &socinfo_c2,},
 	{ /* sentinel */ }
 };
 
