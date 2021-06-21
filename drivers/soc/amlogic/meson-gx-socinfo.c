@@ -16,13 +16,19 @@
 #include <linux/regmap.h>
 #include <linux/mfd/syscon.h>
 
-#define AO_SEC_SD_CFG8		0xe0
-#define AO_SEC_SOCINFO_OFFSET	AO_SEC_SD_CFG8
-
 #define SOCINFO_MAJOR	GENMASK(31, 24)
 #define SOCINFO_PACK	GENMASK(23, 16)
 #define SOCINFO_MINOR	GENMASK(15, 8)
 #define SOCINFO_MISC	GENMASK(7, 0)
+
+
+struct meson_socinfo_data {
+	unsigned int offset;
+};
+
+static const struct meson_socinfo_data socinfo_gx = {
+	.offset = 0xe0,
+};
 
 static const struct meson_gx_soc_id {
 	const char *name;
@@ -125,8 +131,16 @@ static const char *socinfo_to_soc_id(u32 socinfo)
 	return "Unknown";
 }
 
+static const struct of_device_id meson_socinfo_ids[] __initconst = {
+	{ .compatible = "amlogic,meson-gx-ao-secure", .data = &socinfo_gx, },
+	{ /* sentinel */ }
+};
+
+
 static int __init meson_gx_socinfo_init(void)
 {
+	const struct meson_socinfo_data *info;
+	const struct of_device_id *match;
 	struct soc_device_attribute *soc_dev_attr;
 	struct soc_device *soc_dev;
 	struct device_node *np;
@@ -136,9 +150,11 @@ static int __init meson_gx_socinfo_init(void)
 	int ret;
 
 	/* look up for chipid node */
-	np = of_find_compatible_node(NULL, NULL, "amlogic,meson-gx-ao-secure");
+	np = of_find_matching_node_and_match(NULL, meson_socinfo_ids, &match);
 	if (!np)
 		return -ENODEV;
+
+	info = match->data;
 
 	/* check if interface is enabled */
 	if (!of_device_is_available(np)) {
@@ -160,7 +176,7 @@ static int __init meson_gx_socinfo_init(void)
 		return -ENODEV;
 	}
 
-	ret = regmap_read(regmap, AO_SEC_SOCINFO_OFFSET, &socinfo);
+	ret = regmap_read(regmap, info->offset, &socinfo);
 	if (ret < 0)
 		return ret;
 
