@@ -7,7 +7,7 @@
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 
-//#include <dt-bindings/gpio/meson-c2-gpio.h>
+#include <dt-bindings/gpio/meson-c2-gpio.h>
 #include <dt-bindings/reset/amlogic,meson-c2-reset.h>
 
 / {
@@ -106,6 +106,23 @@
 				reg = <0x0 0x5a20 0x0 0x140>;
 				amlogic,has-chip-id;
 			};
+
+			periphs_pinctrl: pinctrl@400 {
+				compatible = "amlogic,meson-c2-periphs-pinctrl";
+				#address-cells = <2>;
+				#size-cells = <2>;
+				ranges;
+
+				gpio: bank@0400 {
+					reg = <0x0 0x0400 0x0 0x0040>,
+					      <0x0 0x0480 0x0 0x01d8>;
+					reg-names = "mux", "gpio";
+					gpio-controller;
+					#gpio-cells = <2>;
+					gpio-ranges = <&periphs_pinctrl 0 0 90>;
+				};
+			};
+
 		};
 
 		gic: interrupt-controller@ff901000 {
@@ -135,4 +152,8 @@
 		clock-output-names = "xtal";
 		#clock-cells = <0>;
 	};
+};
+
+/* add pin mux here */
+&periphs_pinctrl {
 };
