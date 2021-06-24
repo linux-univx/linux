@@ -31,7 +31,7 @@ static const struct meson_socinfo_data socinfo_gx = {
 };
 
 static const struct meson_socinfo_data socinfo_c2 = {
-	.offset = 0x300,
+	.offset = 0xe0,
 };
 
 static const struct meson_gx_soc_id {

@@ -101,9 +101,9 @@
 				status = "disabled";
 			};
 
-			socinfo: syscon-secure@5800 {
+			socinfo: syscon-secure@5a20 {
 				compatible = "amlogic,meson-c2-secure", "syscon";
-				reg = <0x0 0x5800 0x0 0x5800>;
+				reg = <0x0 0x5a20 0x0 0x140>;
 				amlogic,has-chip-id;
 			};
 		};
