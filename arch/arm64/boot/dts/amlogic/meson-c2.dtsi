@@ -123,6 +123,12 @@
 				};
 			};
 
+			watchdog {
+				compatible = "arm,smc-wdt";
+				arm,smc-id = <0x8200004f>;
+				status = "okay";
+			};
+
 		};
 
 		gic: interrupt-controller@ff901000 {
