@@ -220,12 +220,13 @@ static int __init meson_gx_socinfo_init(void)
 	}
 	dev = soc_device_to_device(soc_dev);
 
-	dev_info(dev, "Amlogic Meson %s Revision %x:%x (%x:%x) Detected\n",
+	dev_info(dev, "Amlogic Meson %s Revision %x:%x (%x:%x) Detected, socinfo=%08X\n",
 			soc_dev_attr->soc_id,
 			socinfo_to_major(socinfo),
 			socinfo_to_minor(socinfo),
 			socinfo_to_pack(socinfo),
-			socinfo_to_misc(socinfo));
+			socinfo_to_misc(socinfo),
+			socinfo);
 
 	return 0;
 }
