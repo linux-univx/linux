@@ -158,6 +158,19 @@
 		clock-output-names = "xtal";
 		#clock-cells = <0>;
 	};
+
+	clkc: clock-controller {
+		compatible = "amlogic,c2-clkc";
+		#clock-cells = <1>;
+		reg = <0x0 0xfe000800 0x0 0x130>,
+			  <0x0 0xfe007c00 0x0 0x258>,
+			  <0x0 0xfe007480 0x0 0x24>;
+		reg-names = "basic", "pll", "cpu_clk";
+		clocks = <&xtal>;
+		clock-names = "core";
+		status = "okay";
+	};
+
 };
 
 /* add pin mux here */
