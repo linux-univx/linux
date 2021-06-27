@@ -20,6 +20,7 @@ properties:
       - amlogic,meson6-i2c # Meson6, Meson8 and compatible SoCs
       - amlogic,meson-gxbb-i2c # GXBB and compatible SoCs
       - amlogic,meson-axg-i2c # AXG and compatible SoCs
+      - amlogic,meson-c2-i2c # C2 and compatible SoCs
 
   reg:
     maxItems: 1
