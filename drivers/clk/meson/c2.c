@@ -199,18 +199,6 @@ static struct clk_regmap c2_fixed_pll = {
 			.shift   = 10,
 			.width   = 5,
 		},
-		/*
-		.od = {
-			.reg_off = ANACTRL_FIXPLL_CTRL0,
-			.shift   = 16,
-			.width   = 2,
-		},
-		.frac = {
-			.reg_off = ANACTRL_FIXPLL_CTRL1,
-			.shift   = 0,
-			.width   = 19,
-		},
-		*/
 		.l = {
 			.reg_off = ANACTRL_FIXPLL_CTRL0,
 			.shift   = 31,
@@ -3151,7 +3139,7 @@ static struct clk_hw_onecell_data c2_hw_onecell_data = {
 		[CLKID_FCLK_DIV5]		= &c2_fclk_div5.hw,
 		[CLKID_FCLK_DIV7_DIV]		= &c2_fclk_div7_div.hw,
 		[CLKID_FCLK_DIV7]		= &c2_fclk_div7.hw,
-		[CLKID_GP_PLL_VCO]		= &c2_gp_pll_vco.hw,
+		//[CLKID_GP_PLL_VCO]		= &c2_gp_pll_vco.hw,
 		[CLKID_GP_PLL_OD1_DIV]		= &c2_gp_pll_od1_div.hw,
 		[CLKID_GP_PLL_GATE1]		= &c2_gp_pll_gate1.hw,
 		[CLKID_GP_PLL_GATE2]		= &c2_gp_pll_gate2.hw,
@@ -3168,7 +3156,7 @@ static struct clk_hw_onecell_data c2_hw_onecell_data = {
 		[CLKID_GP_PLL_MCLK2_DIV]	= &c2_gp_pll_mclk2_div.hw,
 		[CLKID_GP_PLL_MCLK2_GATE]	= &c2_gp_pll_mclk2_gate.hw,
 		[CLKID_HIFI_PLL]		= &c2_hifi_pll.hw,
-		[CLKID_SYS_PLL_VCO]		= &c2_sys_pll_vco.hw,
+		//[CLKID_SYS_PLL_VCO]		= &c2_sys_pll_vco.hw,
 		[CLKID_SYS_PLL_GATE]		= &c2_sys_pll_gate.hw,
 		[CLKID_SYS_PLL]			= &c2_sys_pll.hw,
 		[CLKID_SYS_B_SEL]		= &c2_sys_b_sel.hw,
@@ -3691,7 +3679,7 @@ static struct clk_regmap *const c2_pll_clk_regmaps[] = {
 	&c2_fclk_div4,
 	&c2_fclk_div5,
 	&c2_fclk_div7,
-	&c2_gp_pll_vco,
+	//&c2_gp_pll_vco,
 	&c2_gp_pll_od1_div,
 	&c2_gp_pll_gate1,
 	&c2_gp_pll_gate2,
@@ -3706,7 +3694,7 @@ static struct clk_regmap *const c2_pll_clk_regmaps[] = {
 	&c2_gp_pll_mclk2_div,
 	&c2_gp_pll_mclk2_gate,
 	&c2_hifi_pll,
-	&c2_sys_pll_vco,
+	//&c2_sys_pll_vco,
 	&c2_sys_pll_gate,
 	&c2_sys_pll,
 };
@@ -3837,10 +3825,9 @@ static int c2_clkc_probe(struct platform_device *pdev)
 		/* array might be sparse */
 		if (!c2_hw_onecell_data.hws[i])
 			continue;
-		/*
-		 * dev_err(dev, "register %d  %s\n",i,
-		 *		c2_hw_onecell_data.hws[i]->init->name);
-		 */
+
+		dev_info(dev, "register %d  %s\n",i, 	c2_hw_onecell_data.hws[i]->init->name);
+
 		ret = devm_clk_hw_register(dev, c2_hw_onecell_data.hws[i]);
 		if (ret) {
 			dev_err(dev, "Clock registration failed\n");
