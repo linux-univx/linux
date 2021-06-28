@@ -14,6 +14,11 @@
 	aliases {
 		serial0 = &uart_b;
 		serial1 = &uart_a;
+		i2c0 = &i2c0;
+		i2c1 = &i2c1;
+		i2c2 = &i2c2;
+		i2c3 = &i2c3;
+		i2c4 = &i2c4;
 	};
 
 	chosen {
@@ -62,4 +67,16 @@
 
 &uart_b {
 	status = "okay";
+};
+
+&i2c2 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c2_master_pins2>;
+};
+
+&i2c3 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c3_master_pins2>;
 };
