@@ -58,21 +58,14 @@ static unsigned long __pll_params_to_rate(unsigned long parent_rate,
 {
 	u64 rate = (u64)parent_rate * m;
 
-	if (frac && MESON_PARM_APPLICABLE(&pll->frac) && pll->frac.width > 2) {
+	if (frac && MESON_PARM_APPLICABLE(&pll->frac)) {
 		u64 frac_rate = (u64)parent_rate * frac;
 
-		/* frac_max = 1 << (pll->frac.width - 2) */
-		/* frac equal Positive */
-		if (!((frac >> (pll->frac.width - 1)) & 0x1))
-			rate += DIV_ROUND_UP_ULL(frac_rate, 1 << (pll->frac.width - 2));
-		else  /* frac equal Negative */
-			rate -= DIV_ROUND_UP_ULL(frac_rate, 1 << (pll->frac.width - 2));
+		rate += DIV_ROUND_UP_ULL(frac_rate,
+					 (1 << pll->frac.width));
 	}
 
-	if (n == 0)
-		return rate;
-	else
-		return  DIV_ROUND_UP_ULL(rate, n); //return DIV_ROUND_UP_ULL(rate, n) >> od;
+	return DIV_ROUND_UP_ULL(rate, n);
 }
 
 static unsigned long meson_clk_pll_recalc_rate(struct clk_hw *hw,
@@ -107,7 +100,7 @@ static unsigned int __pll_params_with_frac(unsigned long rate,
 					   unsigned int n,
 					   struct meson_clk_pll_data *pll)
 {
-	unsigned int frac_max = (1 << (pll->frac.width - 2));
+	unsigned int frac_max = (1 << pll->frac.width);
 	u64 val = (u64)rate * n;
 
 	/* Bail out if we are already over the requested rate */
@@ -436,7 +429,7 @@ const struct clk_ops meson_clk_pcie_pll_ops = {
 	.determine_rate	= meson_clk_pll_determine_rate,
 	.is_enabled	= meson_clk_pll_is_enabled,
 	.enable		= meson_clk_pcie_pll_enable,
-	.disable	= meson_clk_pll_disable,
+	.disable	= meson_clk_pll_disable
 };
 EXPORT_SYMBOL_GPL(meson_clk_pcie_pll_ops);
 
@@ -447,7 +440,7 @@ const struct clk_ops meson_clk_pll_ops = {
 	.set_rate	= meson_clk_pll_set_rate,
 	.is_enabled	= meson_clk_pll_is_enabled,
 	.enable		= meson_clk_pll_enable,
-	.disable	= meson_clk_pll_disable,
+	.disable	= meson_clk_pll_disable
 };
 EXPORT_SYMBOL_GPL(meson_clk_pll_ops);
 
