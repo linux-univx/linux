@@ -132,6 +132,7 @@
 #define SD_EMMC_DESC_CHAIN_MODE BIT(1)
 
 #define MUX_CLK_NUM_PARENTS 2
+#define SDMC_OCR_AVAIL 0x200080
 
 struct meson_mmc_data {
 	unsigned int tx_delay_mask;
@@ -1194,6 +1195,7 @@ static int meson_mmc_probe(struct platform_device *pdev)
 	host->dram_access_quirk = device_property_read_bool(&pdev->dev,
 					"amlogic,dram-access-quirk");
 
+	mmc->ocr_avail = SDMC_OCR_AVAIL;
 	/* Get regulators and the supported OCR mask */
 	host->vqmmc_enabled = false;
 	ret = mmc_regulator_get_supply(mmc);
