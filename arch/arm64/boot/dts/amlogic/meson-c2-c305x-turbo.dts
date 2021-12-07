@@ -58,6 +58,25 @@
 		regulator-always-on;
 	};
 
+	/* 1v2 or 2v5 for ddr */
+	vddq_1v2: regulator-vddq_1v2 {
+		compatible = "regulator-fixed";
+		regulator-name = "VDDQ_1V2";
+		regulator-min-microvolt = <1200000>;
+		regulator-max-microvolt = <1200000>;
+		vin-supply = <&main_12v>;
+		regulator-always-on;
+	};
+
+	ddr4_2v5: regulator-ddr4_2v5 {
+		compatible = "regulator-fixed";
+		regulator-name = "DDR4_2V5";
+		regulator-min-microvolt = <2500000>;
+		regulator-max-microvolt = <2500000>;
+		vin-supply = <&vddao_3v3>;
+		regulator-always-on;
+	};
+
 	vcc_3v3: regulator-vcc_3v3 {
 		compatible = "regulator-fixed";
 		regulator-name = "VCC_3V3";
@@ -76,7 +95,7 @@
 		regulator-always-on;
 	};
 
-	/* 1v8 or 3v3 */
+	/* 1v8 for eMMC */
 	vddio_boot: regulator-vddio_boot {
 		compatible = "regulator-fixed";
 		regulator-name = "VDDIO_BOOT";
@@ -106,4 +125,19 @@
 	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c3_master_pins2>;
+};
+
+&sd_emmc_c {
+	status = "okay";
+	pinctrl-0 = <&emmc_pins>;
+	pinctrl-1 = <&emmc_clk_gate_pins>;
+	pinctrl-names = "default", "clk-gate";
+	cap-mmc-highspeed;
+	non-removable;
+	// mmc-ddr-1_8v;
+	// mmc-hs200-1_8v;
+	// mmc-hs400-1_8v;
+	max-frequency = <200000000>;
+	disable-wp;
+	bus-width = <8>;
 };
