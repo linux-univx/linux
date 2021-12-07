@@ -95,6 +95,26 @@
 		#size-cells = <2>;
 		ranges;
 
+		sd_emmc_c: mmc@fe012000 {
+			compatible = "amlogic,meson-axg-mmc";
+			reg = <0x0 0xfe012000 0x0 0x800>,
+				<0x0 0xfe000920 0x0 0x4>,
+				<0x0 0xfe00040c 0x0 0x4>;
+			interrupts = <GIC_SPI 63 IRQ_TYPE_EDGE_RISING>;
+			status = "disabled";
+			clocks = <&clkc CLKID_SYS_SD_EMMC_C>,
+				<&clkc CLKID_SD_EMMC_C_SEL>,
+				<&clkc CLKID_SD_EMMC_C_GATE>,
+				<&clkc CLKID_SD_EMMC_C>,
+				<&xtal>,
+				<&clkc CLKID_HIFI_PLL>,
+				<&clkc CLKID_SD_EMMC_C_DIV>;
+			clock-names = "core", "mux0", "mux1", "mux2",
+				"clkin0", "clkin1", "clkin2";
+			tx_delay = <16>;
+			resets = <&reset RESET_SD_EMMC_C>;
+		};
+
 		apb: bus@fe000000 {
 			compatible = "simple-bus";
 			reg = <0x0 0xfe000000 0x0 0x1000000>;
@@ -494,4 +514,41 @@
 			input-enable;
 		};
 	};
+
+	emmc_pins: emmc {
+		mux-0 {
+			groups = "emmc_nand_d0",
+				 "emmc_nand_d1",
+				 "emmc_nand_d2",
+				 "emmc_nand_d3",
+				 "emmc_nand_d4",
+				 "emmc_nand_d5",
+				 "emmc_nand_d6",
+				 "emmc_nand_d7",
+				 "emmc_clk",
+				 "emmc_cmd";
+			function = "emmc";
+			bias-pull-up;
+			input-enable;
+			drive-strength = <3>;
+		};
+
+		mux-1 {
+			groups = "emmc_nand_ds";
+			function = "emmc";
+			bias-pull-down;
+			input-enable;
+			drive-strength = <3>;
+		};
+	};
+
+	emmc_clk_gate_pins: emmc_clk_gate {
+		mux {
+			groups = "emmc_clk";
+			function = "emmc";
+			bias-pull-down;
+			drive-strength = <3>;
+		};
+	};
+
 };
