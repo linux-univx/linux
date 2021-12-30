@@ -16,6 +16,17 @@
 #include <linux/platform_device.h>
 #include <linux/regmap.h>
 
+#define G12B_DPHY_MUX_BASE              (0xff63c34c)
+
+#define HI_CSI_PHY_CNTL0                    0x00
+#define  HI_CSI_PHY_CNTL0_HS_SKEW_ENABLE	BIT(27)
+#define  HI_CSI_PHY_CNTL0_HS_CML		BIT(26)
+#define HI_CSI_PHY_CNTL1                    0x04
+#define  HI_CSI_PHY_CNTL1_CSI_TTL_EN		BIT(31)
+#define HI_CSI_PHY_CNTL2                    0x08
+#define HI_CSI_PHY_CNTL3                    0x0c
+
+
 /*
  * Design: generic phy driver
  *
@@ -37,42 +48,27 @@
  */
 
 enum csi2_phymux {
-    // phy-analog <--> dphy_rx0 <--> csi_host0  1/2/4 lanes
-    CSI2_PHYMUX_A = 0,
+	// phy-analog <--> dphy_rx0 <--> csi_host0  1/2/4 lanes
+	CSI2_PHYMUX_A = 0,
 
-    // phy-analog <--> dphy_rx1 <--> csi_host1  1/2/4 lanes
-    CSI2_PHYMUX_B,
+	// phy-analog <--> dphy_rx1 <--> csi_host1  1/2/4 lanes
+	CSI2_PHYMUX_B,
 
-    // phy-analog_clka <--> dphy_rx0 <--> csi_host0  1/2 lanes
-    // phy-analog_clkb <--> dphy_rx1 <--> csi_host1  1/2 lanes
-    CSI2_PHYMUX_AB,
+	// phy-analog_clka <--> dphy_rx0 <--> csi_host0  1/2 lanes
+	// phy-analog_clkb <--> dphy_rx1 <--> csi_host1  1/2 lanes
+	CSI2_PHYMUX_AB,
 
-    CSI2_PHYMUX_MAX
+	CSI2_PHYMUX_MAX
 };
 
 
-#define G12B_DPHY_MUX_BASE              (0xff63c34c)
-
-#define HI_CSI_PHY_CNTL0                    0x00
-#define  HI_CSI_PHY_CNTL0_HS_SKEW_ENABLE	BIT(27)
-#define  HI_CSI_PHY_CNTL0_HS_CML		BIT(26)
-#define HI_CSI_PHY_CNTL1                    0x04
-#define  HI_CSI_PHY_CNTL1_CSI_TTL_EN		BIT(31)
-#define HI_CSI_PHY_CNTL2                    0x08
-#define HI_CSI_PHY_CNTL3                    0x0c
-
-
 struct csi_aphy {
+	struct phy *phy;
+	struct regmap *regmap;
+	struct phy_configure_opts_mipi_dphy config;
 
-    struct phy *phy;
-
-    struct regmap *regmap;
-
-    struct phy_configure_opts_mipi_dphy config;
-
-    enum csi2_phymux phymux;
-
-    u32 ui_val;
+	enum csi2_phymux phymux;
+	u32 ui_val;
 };
 
 static const struct regmap_config csi_aphy_regmap_config = {
@@ -103,7 +99,7 @@ static int csi_aphy_configure(struct phy *phy, union phy_configure_opts *opts)
 	ui_val = 1000 / data_rate_mbps;
 
 	if ((ui_val % data_rate_mbps) != 0) {
-	    ui_val += 1;
+		ui_val += 1;
 	}
 
 	priv->ui_val = ui_val;
@@ -114,41 +110,47 @@ static int csi_aphy_configure(struct phy *phy, union phy_configure_opts *opts)
 
 static int csi_aphy_set_mode(struct phy *phy, enum phy_mode mode, int submode)
 {
-    struct csi_aphy *priv = phy_get_drvdata(phy);
+	struct csi_aphy *priv = phy_get_drvdata(phy);
 
-    if (mode != PHY_MODE_MIPI_DPHY)
+	if (mode != PHY_MODE_MIPI_DPHY)
 	return -EINVAL;
 
-    if (submode >= CSI2_PHYMUX_MAX)
-	    return -EINVAL;
+	if (submode >= CSI2_PHYMUX_MAX)
+		return -EINVAL;
 
-    dev_info(&phy->dev, "Changing phymux to %d\n", submode);
-    priv->phymux = submode;
+	dev_info(&phy->dev, "Changing phymux to %d\n", submode);
+	priv->phymux = submode;
 
-    return 0;
+	return 0;
 }
 
 
 static int csi_aphy_power_on(struct phy *phy)
 {
-    struct csi_aphy *priv = phy_get_drvdata(phy);
+	struct csi_aphy *priv = phy_get_drvdata(phy);
 
-    if (priv->ui_val <= 1)
-	regmap_write(priv->regmap, HI_CSI_PHY_CNTL0, 0x0b440585);
-    else
-	regmap_write(priv->regmap, HI_CSI_PHY_CNTL0, 0x0b440581);
+#if MESON_C308X
+	if (priv->ui_val <= 1)
+		regmap_write(priv->regmap, HI_CSI_PHY_CNTL0, 0x0b440585);
+	else
+		regmap_write(priv->regmap, HI_CSI_PHY_CNTL0, 0x0b440581);
+	regmap_write(priv->regmap, HI_CSI_PHY_CNTL1, 0x803f0000);
+#elif MESON_C305X
+	regmap_write(priv->regmap, HI_CSI_PHY_CNTL0, 0x0f820701);
+	regmap_write(priv->regmap, HI_CSI_PHY_CNTL1, 0x003f1221);
+#else
+	dev_info(&phy->dev, "FIXME!!!\n");
+#endif
 
-    regmap_write(priv->regmap, HI_CSI_PHY_CNTL1, 0x803f0000);
+	if (priv->phymux == CSI2_PHYMUX_A) {
+		regmap_write(priv->regmap, HI_CSI_PHY_CNTL3, 0x0002);
+	} else if (priv->phymux == CSI2_PHYMUX_B) {
+		regmap_write(priv->regmap, HI_CSI_PHY_CNTL3, 0xc002);
+	} else if (priv->phymux == CSI2_PHYMUX_AB) {
+		dev_info(&phy->dev, "FIXME!!!\n");
+	}
 
-    if (priv->phymux == CSI2_PHYMUX_A) {
-	regmap_write(priv->regmap, HI_CSI_PHY_CNTL3, 0x0002);
-    } else if (priv->phymux == CSI2_PHYMUX_B) {
-	regmap_write(priv->regmap, HI_CSI_PHY_CNTL3, 0xc002);
-    } else if (priv->phymux == CSI2_PHYMUX_AB) {
-	;
-    }
-
-    return 0;
+	return 0;
 }
 
 static int csi_aphy_power_off(struct phy *phy)
@@ -159,22 +161,22 @@ static int csi_aphy_power_off(struct phy *phy)
 
 static int csi_aphy_init(struct phy *phy)
 {
-    return 0;
+	return 0;
 }
 
 static int csi_aphy_exit(struct phy *phy)
 {
-    return 0;
+	return 0;
 }
 
 static const struct phy_ops csi_aphy_ops = {
-    .init	= csi_aphy_init,
-    .exit	= csi_aphy_exit,
-    .power_on	= csi_aphy_power_on,
-    .power_off	= csi_aphy_power_off,
-    .set_mode   = csi_aphy_set_mode,
-    .configure	= csi_aphy_configure,
-    .owner	= THIS_MODULE,
+	.init	= csi_aphy_init,
+	.exit	= csi_aphy_exit,
+	.power_on	= csi_aphy_power_on,
+	.power_off	= csi_aphy_power_off,
+	.set_mode   = csi_aphy_set_mode,
+	.configure	= csi_aphy_configure,
+	.owner	= THIS_MODULE,
 };
 
 static const struct of_device_id csi_aphy_dt_ids[] = {
@@ -208,7 +210,7 @@ static int csi_aphy_probe(struct platform_device *pdev)
 	}
 
 	priv->regmap = devm_regmap_init_mmio(&pdev->dev, base,
-					     &csi_aphy_regmap_config);
+						 &csi_aphy_regmap_config);
 	if (IS_ERR(priv->regmap)) {
 		dev_err(dev, "Couldn't create the DPHY regmap\n");
 		return PTR_ERR(priv->regmap);
