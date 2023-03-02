@@ -783,6 +783,10 @@ static struct meson_uart_data s4_uart_data = {
 	.has_xtal_div2 = true,
 };
 
+static struct meson_uart_data c2_uart_data = {
+	.has_xtal_div2 = true,
+};
+
 static const struct of_device_id meson_uart_dt_match[] = {
 	{ .compatible = "amlogic,meson6-uart" },
 	{ .compatible = "amlogic,meson8-uart" },
@@ -791,6 +795,10 @@ static const struct of_device_id meson_uart_dt_match[] = {
 	{
 		.compatible = "amlogic,meson-s4-uart",
 		.data = (void *)&s4_uart_data,
+	},
+	{
+		.compatible = "amlogic,meson-c2-uart",
+		.data = (void *)&c2_uart_data,
 	},
 	{ /* sentinel */ },
 };
