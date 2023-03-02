@@ -198,6 +198,10 @@ properties:
               - amlogic,aq222
           - const: amlogic,s4
 
+      - description: Boards with the Amlogic Meson C2 C305X SoC
+        items:
+          - const: amlogic,c2
+
 additionalProperties: true
 
 ...
